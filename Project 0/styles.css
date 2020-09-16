@@ -1,0 +1,25 @@
+li{
+    display: inline;
+    padding-right: 10px;
+}
+ul {
+    float: right;
+}
+form {
+    clear: right;
+}
+input{
+    align-items: center;
+    display: block;
+}
+#search-field {
+    width: 50%;
+    margin: auto;
+    padding: 10px;
+    border-radius: 10px;
+}
+#button {
+    width: 15%;
+    margin: auto;
+    margin-top: 10px;
+}
