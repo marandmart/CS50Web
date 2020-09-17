@@ -6,15 +6,6 @@
         <meta name="description" content="Search challenge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="styles.css">
-        <style>
-            input{
-                display: inline-block;
-            }
-            .field{
-                display: block;
-                margin: 5px;
-            }
-        </style>
     </head>
     <body>
         <ul>
@@ -22,23 +13,23 @@
             <li><a href="index-imgSearch.html">Images</a></li>
         </ul>
         <form action="https://google.com/search">
-            <div class="field">
+            <div class="adv-search-item">
                 <label>Find pages with… “all these words:”</label>
-                <input type="text" name="q" id="search-field">
+                <input type="text" name="q" class="adv-search-bar">
             </div>
-            <div class="field">
+            <div class="adv-search-item">
                 <label>Find pages with… “this exact word or phrase:”</label>
-                <input type="text" name="as_epq" id="search-field">
+                <input type="text" name="as_epq" class="adv-search-bar">
             </div>
-            <div class="field">
+            <div class="adv-search-item">
                 <label>Find pages with… “any of these words:”</label>
-                <input type="text" name="as_oq" id="search-field">
+                <input type="text" name="as_oq" class="adv-search-bar">
             </div>
-            <div class="field">
+            <div class="adv-search-item">
                 <label>Find pages with… “none of these words:”</label>
-                <input type="text" name="as_eq" id="search-field">
+                <input type="text" name="as_eq" class="adv-search-bar">
             </div>
-            <input type="submit" value="Google Advanced Search" id="button" style="background-color: blue; color: white; padding: 3px;">
+            <input type="submit" value="Google Advanced Search" class="adv-search-button">
         </form>
     </body>
 </html>
