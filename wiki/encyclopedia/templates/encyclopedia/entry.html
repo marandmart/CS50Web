@@ -1,0 +1,15 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block body %}
+
+    {% if content != None %}
+        {{ content|safe }}
+    {% else %}
+        <h1>Página não existe</h1>
+    {% endif %}
+
+{% endblock %}
