@@ -36,3 +36,14 @@ textarea {
 .sidebar h2 {
     margin-top: 5px;
 }
+
+.new-entry{
+    display: block;
+    margin: 10px;
+}
+.new-entry-field{
+    width: 80%;
+}
+.new-entry-textarea{
+    height: 500px;
+}
