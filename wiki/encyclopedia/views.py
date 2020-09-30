@@ -21,3 +21,6 @@ def go_entry(request, title):
             "title": title.capitalize(),
             "content": "<h1>PAGE DOES NOT EXIST</h1><p>Know the subject? Consider creating an entry for this topic.</p>",
             })
+
+def new_entry(request):
+    return render(request, "encyclopedia/new_entry.html")
