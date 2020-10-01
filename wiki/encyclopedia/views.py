@@ -1,3 +1,4 @@
+
 from django.shortcuts import render
 from django.http import Http404
 from django import forms
@@ -36,5 +37,19 @@ def search_entry(request):
                 "query": request.GET['q'].lower(),
             })
 
-def create_entry(request):
+def new_entry(request):
+    if request.method == "POST":
+        try:
+            title = request.POST['title']
+            content = request.POST['content']
+            util.save_entry(title, content)
+            return render(request, "encyclopedia/entry.html", {
+                "title": title.capitalize(),
+                "content": markdown2.markdown(util.get_entry(title)),
+            })
+        except PermissionError:
+            return render(request, "encyclopedia/entry.html", {
+                "title": "ERROR",
+                "content": "<h1>Entry already exists. Go to the homepage to look for it.</h1>",
+            })
     return render(request, "encyclopedia/new_entry.html")
