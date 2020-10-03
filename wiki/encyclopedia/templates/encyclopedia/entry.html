@@ -8,6 +8,6 @@
 
     {{ content|safe }}
 
-    <a href="#" class="button">Edit this entry</a>
+    <a href="{% url 'edit' title|lower %}" class="button">Edit this entry</a>
 
 {% endblock %}

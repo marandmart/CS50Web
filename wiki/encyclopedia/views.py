@@ -4,7 +4,23 @@ from django.http import Http404
 from django import forms
 import markdown2
 
+from django.http import HttpResponse
+
+from random import choice
+
 from . import util
+
+class ContentForm(forms.Form):
+    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={
+        'class': 'new-entry new-entry-field', 
+        'placeholder': "Entry's title",
+        }))
+    content = forms.CharField(label="Content", widget=forms.Textarea(attrs={
+        'class': 'new-entry new-entry-field new-entry-textarea',
+        'placeholder': "Entry's content",
+        'rows': '5',
+        'cols': '60',
+        }))
 
 
 def index(request):
@@ -52,4 +68,19 @@ def new_entry(request):
                 "title": "ERROR",
                 "content": "<h1>Entry already exists. Go to the homepage to look for it.</h1>",
             })
-    return render(request, "encyclopedia/new_entry.html")
+    return render(request, "encyclopedia/new_entry.html", {
+        "form": ContentForm(),
+    })
+
+def edit(request, title):
+    entry = util.get_entry(title)
+    form = ContentForm()
+    form.fields['title'].initial = title.capitalize()
+    form.fields['content'].initial = entry
+    return render(request, "encyclopedia/edit.html", {
+        "form": form,
+    })
+
+def random(request):
+    element = choice(util.list_entries())
+    return go_entry(request, element)
