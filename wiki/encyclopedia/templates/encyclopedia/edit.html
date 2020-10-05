@@ -1,17 +1,19 @@
 {% extends "encyclopedia/layout.html" %}
 
 {% block title %}
-    Edit this entry
+    Edit {{title}}
 {% endblock %}
 
 {% block body %}
 
     <h1>Edit this entry</h1>
 
-    <form action="{% url 'new_entry' %}" method="POST">
+    <!-- Como essa função recebe dois parâmetros, algo precisa preencher o valor na chamada do URL da função
+    edit, caso contrário será devolvido um erro de ReverseMatch -->
+    <form action="{% url 'edit' title|lower %}" method="POST">
         {% csrf_token %}
         {{ form }}
-        <input type="submit" value="Submit edit" class="new-entry">
+        <input type="submit" value="Submit Edit" class="new-entry">
     </form>
 
 {% endblock %}

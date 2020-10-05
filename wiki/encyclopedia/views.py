@@ -1,12 +1,11 @@
 
 from django.shortcuts import render
 from django.http import Http404
+from random import choice
 from django import forms
 import markdown2
 
 from django.http import HttpResponse
-
-from random import choice
 
 from . import util
 
@@ -28,14 +27,14 @@ def index(request):
         "entries": util.list_entries()
     })
 
-def go_entry(request, title):
+def entry(request, title):
     try: 
         return render(request, "encyclopedia/entry.html", {
             "title": title.capitalize(),
             "content": markdown2.markdown(util.get_entry(title)),
         })
     except TypeError:
-        return render(request, "encyclopedia/entry.html", {
+        return render(request, "encyclopedia/error.html", {
             "title": title.capitalize(),
             "content": "<h1>PAGE DOES NOT EXIST</h1><p>Know the subject? Consider creating an entry for this topic.</p>",
             })
@@ -55,32 +54,46 @@ def search_entry(request):
 
 def new_entry(request):
     if request.method == "POST":
-        try:
-            title = request.POST['title']
-            content = request.POST['content']
+        form = ContentForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            content = form.cleaned_data["content"]
+            if title in util.list_entries():
+                return render(request, "encyclopedia/error.html", {
+                    "title": title,
+                    "content": "<h1>Entry already exists</h1><p>Acess or search for it at the homepage.</p>"
+                })
             util.save_entry(title, content)
-            return render(request, "encyclopedia/entry.html", {
-                "title": title.capitalize(),
-                "content": markdown2.markdown(util.get_entry(title)),
-            })
-        except PermissionError:
-            return render(request, "encyclopedia/entry.html", {
-                "title": "ERROR",
-                "content": "<h1>Entry already exists. Go to the homepage to look for it.</h1>",
+            return entry(request, title)
+        else:
+            return render(request, "encyclopedia/new_entry.html", {
+                "form": form,
             })
     return render(request, "encyclopedia/new_entry.html", {
         "form": ContentForm(),
     })
 
 def edit(request, title):
-    entry = util.get_entry(title)
+    if request.method == "POST":
+        form = ContentForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            content = form.cleaned_data["content"]
+            util.save_entry(title, content)
+            return entry(request, title)
+        else:
+            return render(request, "encyclopedia/edit.html", {
+                "title": title,
+                "form": form
+            })
     form = ContentForm()
     form.fields['title'].initial = title.capitalize()
-    form.fields['content'].initial = entry
+    form.fields['content'].initial = util.get_entry(title)
     return render(request, "encyclopedia/edit.html", {
-        "form": form,
+        "title": title,
+        "form": form
     })
 
 def random(request):
     element = choice(util.list_entries())
-    return go_entry(request, element)
+    return entry(request, element)
