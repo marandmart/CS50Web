@@ -1,3 +1,19 @@
 body {
     padding: 10px;
 }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+#new-listing{
+  width: 80%;
+  margin: auto;
+}
+label{
+  margin: 15px 10px;
+}
+.reduce-btn{
+  width: 40%;
+  margin: auto;
+}

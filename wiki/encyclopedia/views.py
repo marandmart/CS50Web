@@ -1,4 +1,3 @@
-
 from django.shortcuts import render
 from django.http import Http404
 from random import choice

@@ -4,4 +4,23 @@
 
 {% block body %}
 
+    <h1>Create a new listing</h1>
+
+    <form action="{% url 'create' %}" method="POST" id="new-listing">
+        {% csrf_token %}
+        {{ form }}
+        <div>
+            <label for="categoryList">Choose a Category</label>
+            <select name="category" id="categoryList">
+                <option value="None">--------------------------</option>
+                {% for categorie in categories %}
+                    <option value="{{ categorie.id }}">{{ categorie }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="reduce-btn">
+            <input type="submit" value="Create Listing" class="btn btn-primary btn-block">
+        </div>
+    </form>
+
 {% endblock %}
