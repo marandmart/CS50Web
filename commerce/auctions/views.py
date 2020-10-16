@@ -1,10 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from auctions.models import Categorie
+from auctions.models import Categorie, Listing
 from .models import User
 
 # form for creating a new listing
@@ -95,9 +96,23 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+@login_required
 def create_listing(request):
-    # if request.method == "POST":
     categories = Categorie.objects.all()
+    if request.method == "POST":
+        title = request.POST["title"]
+        description = request.POST["description"]
+        img_url = request.POST["img_url"]
+        price = request.POST["price"]
+        category = Categorie.objects.get(pk=int(request.POST["category"]))
+        user = User.objects.get(pk=request.user.id)
+        listing = Listing(title=title, description=description, image_URL=img_url, price=price, category=category, user=user)
+        listing.save()
+        return render(request, "auctions/create_listing.html", {
+            "form": ListingForm(),
+            "categories": categories,
+            "message": "Listing created succefully!",
+        })
     return render(request, "auctions/create_listing.html", {
         "form": ListingForm(),
         "categories": categories,

@@ -15,8 +15,9 @@ class Listing(models.Model):
     title = models.CharField(max_length=64)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    image_URL = models.URLField(max_length=150)
-    category = models.ForeignKey(Categorie, on_delete=models.PROTECT, related_name="categ", default=None)
+    image_URL = models.URLField(max_length=150, blank=True)
+    category = models.ForeignKey(Categorie, on_delete=models.PROTECT, related_name="listings", default=None)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="itemsOnSale", default=None)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -24,8 +25,8 @@ class Listing(models.Model):
 
 
 class Bid(models.Model):
-	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bider")
-	listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="productBids")
+	user = models.ManyToManyField(User, related_name="bids")
+	listing = models.ManyToManyField(Listing, related_name="productBids")
 	bid = models.DecimalField(max_digits=10, decimal_places=2)
 
 	def __str__(self):
@@ -33,8 +34,8 @@ class Bid(models.Model):
 
 
 class Comment(models.Model):
-	user = models.ForeignKey(User, related_name="commenter", on_delete=models.PROTECT)
-	listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
+	user = models.ManyToManyField(User, related_name="comments", blank=True)
+	listing = models.ManyToManyField(Listing, blank=True)
 	comment = models.TextField()
 
 	def __str__(self):
