@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from auctions.models import Categorie, Listing
+from auctions.models import Categorie, Listing, Comment
 from .models import User
 
 # form for creating a new listing
@@ -41,8 +41,22 @@ class ListingForm(forms.Form):
             'placeholder': 'Price',
         }))
 
+class CommentForm(forms.Form):
+    comment = forms.CharField(
+        label='Write a comment', 
+        widget=forms.Textarea(attrs={
+            'class': '',
+            'placeholder': 'Leave a comment!',
+            'rows': '4',
+            'columns': '50',
+        }))
+
 def index(request):
-    return render(request, "auctions/index.html")
+    listings = Listing.objects.all()
+    active_listings = [listing for listing in listings if listing.is_active]
+    return render(request, "auctions/index.html", {
+        "listings": active_listings,
+    })
 
 
 def login_view(request):
@@ -96,6 +110,9 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+# ACCOUNT FOR NULL OPTION IN THE FORM
+# MODIFY MODEL USING https://docs.djangoproject.com/en/dev/ref/forms/fields/#modelchoicefield
+
 @login_required
 def create_listing(request):
     categories = Categorie.objects.all()
@@ -117,3 +134,24 @@ def create_listing(request):
         "form": ListingForm(),
         "categories": categories,
     })
+
+
+def listing_entry(request, listing_id):
+    listing = Listing.objects.get(pk=listing_id)
+    comments = Comment.objects.filter(listing_name=listing)
+    return render(request, "auctions/listing.html", {
+        "listing": listing,
+        "commentForm": CommentForm(),
+        "comments": comments,
+    })
+
+@login_required
+def commenting(request, listing_id):
+    if request.method == "POST":
+        comment = request.POST["comment"]
+        user = User.objects.get(pk=int(request.user.id))
+        listing = Listing.objects.get(pk=int(listing_id))
+        # how to add a manytomanyfield
+        commentFile = Comment(listing_name=listing, user_name=user, comment=comment)
+        commentFile.save()
+        return HttpResponseRedirect(reverse("listing_entry", args=(listing_id,)))
