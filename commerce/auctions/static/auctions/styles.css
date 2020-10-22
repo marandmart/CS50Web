@@ -55,24 +55,26 @@ label{
 
 
 #comment-form{
-  width: 80%;
+  width: 70%;
   margin: auto;
 }
 #comment-form label{
+  padding: 5px 10px;
   display: block;
 }
 #comment-form input{
   display: block;
 }
 #comment-section h2{
-  border-bottom: 1px solid black;
+  text-decoration: underline;
+  margin: auto;
   margin-top: 10px;
-  width: fit-content;
-  text-align: center;
+  width: 50%;
 }
 .comment{
   border: 1px solid black;
   border-radius: 5px;
+  padding: 5px 10px;
   margin: auto;
   margin-top: 10px;
   width: 50%;

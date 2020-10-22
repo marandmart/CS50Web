@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from auctions.models import Categorie, Listing, Comment
+from auctions.models import Categorie, Listing, Comment, Wishlist
 from .models import User
 
 # form for creating a new listing
@@ -46,7 +46,7 @@ class CommentForm(forms.Form):
         label='Write a comment', 
         widget=forms.Textarea(attrs={
             'class': '',
-            'placeholder': 'Leave a comment!',
+            'placeholder': 'Write here!',
             'rows': '4',
             'columns': '50',
         }))
@@ -139,10 +139,19 @@ def create_listing(request):
 def listing_entry(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
     comments = Comment.objects.filter(listing_name=listing)
+    # tentar entrar nessa página sem um usuário logado provavelmente vai quebrar a página
+    # para consertar, eu sugiro um check para verificar se o usuário está autenticado
+    wishlist = Wishlist.objects.get(user_id=request.user.id)
+    items_in_wishlist = wishlist.items.all()
+    if listing in items_in_wishlist:
+        in_wishlist = "Remove from wishlist"
+    else:
+        in_wishlist = "Add to wishlist"
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "commentForm": CommentForm(),
         "comments": comments,
+        "wishlist": in_wishlist,
     })
 
 @login_required
@@ -151,7 +160,40 @@ def commenting(request, listing_id):
         comment = request.POST["comment"]
         user = User.objects.get(pk=int(request.user.id))
         listing = Listing.objects.get(pk=int(listing_id))
-        # how to add a manytomanyfield
         commentFile = Comment(listing_name=listing, user_name=user, comment=comment)
         commentFile.save()
         return HttpResponseRedirect(reverse("listing_entry", args=(listing_id,)))
+
+@login_required
+def wishlist(request, listing_id):
+    user = request.user
+    # tris to get the user's list
+    try:
+        wishlist = Wishlist.objects.get(user_id=user.id)
+    # if it does not exist
+    except DoesNotExist:
+        # creates the list and saves it to a variable
+        Wishlist.objects.create(user_id=user.id)
+        wishlist = Wishlist.objects.get(user_id=user.id)
+    # gets all the items in the list
+    items_in_wishlist = wishlist.items.all()
+    # gets the current item the user is viewing
+    item_at_hand = Listing.objects.get(pk=listing_id)
+    # if the item is in the list
+    if item_at_hand in items_in_wishlist:
+        # it removes it
+        wishlist.items.remove(item_at_hand)
+    else:
+        # else, adds it
+        wishlist.items.add(item_at_hand)
+        # returns to the listing page
+    return HttpResponseRedirect(reverse("listing_entry", args=(listing_id,)))
+
+@login_required
+def wishlist_page(request):
+    user = request.user
+    wishlist = Wishlist.objects.get(user_id=user.id)
+    wishlist_items = wishlist.items.all()
+    return render(request, "auctions/watchlist.html", {
+        "wishlist_items": wishlist_items,
+    })

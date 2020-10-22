@@ -21,14 +21,17 @@ class Listing(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.id} -> {self.title} costs {self.price}"
+        return f"{self.title} costs {self.price}"
 
 class Wishlist(models.Model):
-	item = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_list")
-	wishlist_item = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="list_item")
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_list", default=None)
+	items = models.ManyToManyField(Listing, related_name="list_item")
+
+	def __str__(self):
+		return f"{self.user} wants {self.items.all()}"
 
 class Bid(models.Model):
-	user = models.ManyToManyField(User, related_name="bids")
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bider", blank=False, null=False)
 	listing = models.ManyToManyField(Listing, related_name="productBids")
 	bid = models.DecimalField(max_digits=10, decimal_places=2)
 
