@@ -137,21 +137,39 @@ def create_listing(request):
 
 
 def listing_entry(request, listing_id):
+    # listing info
     listing = Listing.objects.get(pk=listing_id)
+    # comments
     comments = Comment.objects.filter(listing_name=listing)
-    # tentar entrar nessa página sem um usuário logado provavelmente vai quebrar a página
-    # para consertar, eu sugiro um check para verificar se o usuário está autenticado
-    wishlist = Wishlist.objects.get(user_id=request.user.id)
-    items_in_wishlist = wishlist.items.all()
-    if listing in items_in_wishlist:
-        in_wishlist = "Remove from wishlist"
-    else:
-        in_wishlist = "Add to wishlist"
-    return render(request, "auctions/listing.html", {
+    #if the user user is authenticated
+    if request.user.is_authenticated:
+        # tries to get the user's wishlist info
+        try:
+            wishlist = Wishlist.objects.get(user_id=request.user.id)
+        # if the user doesn't have a wishlist, one is created for them
+        except:
+            Wishlist.objects.create(user_id=request.user.id)
+            wishlist = Wishlist.objects.get(user_id=request.user.id)
+        # gets all the items in the wishlist
+        items_in_wishlist = wishlist.items.all()
+        # if the listing item is in the wishlist, it gives the option to remove it
+        if listing in items_in_wishlist:
+            in_wishlist = "Remove from wishlist"
+        # else it gives the option to add it
+        else:
+            in_wishlist = "Add to wishlist"
+        # renders the page with the proper information for an authenticated user
+        return render(request, "auctions/listing.html", {
         "listing": listing,
         "commentForm": CommentForm(),
         "comments": comments,
         "wishlist": in_wishlist,
+    })
+    # loads the page with the info for a non authenticated user
+    return render(request, "auctions/listing.html", {
+        "listing": listing,
+        "commentForm": CommentForm(),
+        "comments": comments,
     })
 
 @login_required
@@ -166,15 +184,8 @@ def commenting(request, listing_id):
 
 @login_required
 def wishlist(request, listing_id):
-    user = request.user
-    # tris to get the user's list
-    try:
-        wishlist = Wishlist.objects.get(user_id=user.id)
-    # if it does not exist
-    except DoesNotExist:
-        # creates the list and saves it to a variable
-        Wishlist.objects.create(user_id=user.id)
-        wishlist = Wishlist.objects.get(user_id=user.id)
+    # gets the user's wishlist
+    wishlist = Wishlist.objects.get(user_id=request.user.id)
     # gets all the items in the list
     items_in_wishlist = wishlist.items.all()
     # gets the current item the user is viewing

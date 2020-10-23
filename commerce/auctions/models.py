@@ -24,7 +24,7 @@ class Listing(models.Model):
         return f"{self.title} costs {self.price}"
 
 class Wishlist(models.Model):
-	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_list", default=None)
+	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_list", default=None, unique=True)
 	items = models.ManyToManyField(Listing, related_name="list_item")
 
 	def __str__(self):
@@ -32,7 +32,7 @@ class Wishlist(models.Model):
 
 class Bid(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bider", blank=False, null=False)
-	listing = models.ManyToManyField(Listing, related_name="productBids")
+	listing = models.ForeignKey(Listing, related_name="productBids", on_delete=models.CASCADE, default=None)
 	bid = models.DecimalField(max_digits=10, decimal_places=2)
 
 	def __str__(self):

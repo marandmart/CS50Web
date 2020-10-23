@@ -9,6 +9,8 @@
     <ul>
         {% for item in wishlist_items %}
             <li><a href="{% url 'listing_entry' item.id %}">{{ item }}</a></li>
+        {% empty %}
+            <li>No items added yet.</li>
         {% endfor %}
     </ul>
 
