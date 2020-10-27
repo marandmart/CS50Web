@@ -47,10 +47,10 @@ class Comment(models.Model):
 	def __str__(self):
 		return f"{self.user_name}, on {self.listing_name} says {self.comment}"
 
+class Winner(models.Model):
+	user = models.OneToOneField(User, on_delete=models.PROTECT)
+	listing = models.OneToOneField(Listing, on_delete=models.PROTECT)
+	sold_by = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=False)
 
-class Item_categorie(models.Model):
-	item_category = models.ForeignKey(Categorie, on_delete=models.CASCADE, related_name="item_category")
-	item_listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="item_listing")
-	
 	def __str__(self):
-		return f"{self.item_listing} pertains to {self.item_category}"
+		return f"{self.user} won the auction: {self.listing}"

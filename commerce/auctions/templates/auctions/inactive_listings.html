@@ -1,0 +1,15 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    Inactive Listings
+{% endblock %}
+
+{% block body %}
+    <ul>
+        {% for listing in inactive_listings %}
+            <li><a href="{% url 'inactive_listing' listing.id %}">{{ listing.title }}, by {{ listing.user }}</a></li>
+        {% empty %}
+            <li><h2>No inactive listings yet.</h2><li></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

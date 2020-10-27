@@ -1,0 +1,37 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    {{ listing.title }}
+{% endblock %}
+
+{% block body %}
+    <div id="inactive-listing">
+        {% if request.user == winner.user %}
+            <div class="alert alert-info">You bought this item</div>
+        {% endif %}
+        <h2>{{ listing.title }}</h2>
+        <img src="{{ listing.image_URL }}" alt="Object on display">
+        {% if winner %}
+            <p>User who bought: {{ winner.user }}</p>
+            <p>Ammount sold for: {{ winner.sold_by }}</p>
+        {% else %}
+            <p>Close listing without sale</p>
+        {% endif %}
+        <p>Seller: {{ listing.user }}</p>
+        <p>Description: {{ listing.description }}</p>
+
+        <div id="comment-section">
+            <h2>Comments:</h2>
+            <!-- If there are comments, it loads them -->
+            {% for comment in comments %}
+            <div class="comment">
+                <h3>{{comment.user_name}} said:</h3>
+                <p>{{ comment.comment }}</p>
+            </div>
+            <!-- If there aren't comments, it says that -->
+            {% empty %}
+                <h3>No comments were made.</h3>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

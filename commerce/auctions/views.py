@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from auctions.models import Categorie, Listing, Comment, Wishlist, Bid
+from auctions.models import Categorie, Listing, Comment, Wishlist, Bid, Winner
 from .models import User
 
 # form for creating a new listing
@@ -62,6 +62,15 @@ def index(request):
         "listings": active_listings,
     })
 
+def inactive(request):
+    # gets all the listing objects
+    listings = Listing.objects.all()
+    # saves all the inactive ones
+    inactive_listings = [listing for listing in listings if (not listing.is_active)]
+    # renders them as a list
+    return render(request, "auctions/inactive_listings.html", {
+        "inactive_listings": inactive_listings,
+    })
 
 def login_view(request):
     if request.method == "POST":
@@ -82,11 +91,9 @@ def login_view(request):
     else:
         return render(request, "auctions/login.html")
 
-
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
-
 
 def register(request):
     if request.method == "POST":
@@ -128,7 +135,10 @@ def create_listing(request):
         description = request.POST["description"]
         img_url = request.POST["img_url"]
         price = request.POST["price"]
-        category = Categorie.objects.get(pk=int(request.POST["category"]))
+        try:
+            category = Categorie.objects.get(pk=int(request.POST["category"]))
+        except Categorie.DoesNotExist:
+            category = None
         user = User.objects.get(pk=request.user.id)
         listing = Listing(title=title, description=description, image_URL=img_url, price=price, category=category, user=user)
         # saves the listing info
@@ -275,3 +285,74 @@ def bidding(request, listing_id):
             return HttpResponse(message)
         return HttpResponseRedirect(reverse("listing_entry", args=(listing_id,)))
 
+@login_required
+def closeListingWithoutSale(request, listing_id):
+    # gets the listing info and then it closes that listing
+    listing = Listing.objects.get(pk=listing_id)
+    listing.is_active = False
+    listing.save()
+    # returns the user a message that they have closes the listing without a sale
+    return HttpResponse("<h1>Closed listing without sale</h1>")
+
+@login_required
+def close(request, listing_id):
+    # gets the listing
+    listing = Listing.objects.get(pk=listing_id)
+    # gets the comments
+    comments = Comment.objects.filter(listing_name=listing)
+    # gets the bidding info
+    try:
+        # tries to get the bidding info
+        listing_bid = Bid.objects.get(listing=listing)
+    except Bid.DoesNotExist:
+        # if there are no bids, then the user has closed the listing without selling the item
+        return closeListingWithoutSale(request, listing.id)
+    # saves the information of the user who bid, the ammount and which listing
+    Winner.objects.create(user=listing_bid.user, listing=listing, sold_by=listing_bid.bid)
+    # saves the information to a variable
+    inactive_listing_info = Winner.objects.get(listing=listing)
+    # makes the listing inactive and saves it
+    listing.is_active = False
+    listing.save()
+    return render(request, "auctions/inactive_listing.html", {
+        "listing": listing,
+        "comments": comments,
+        "winner": inactive_listing_info,
+    })
+
+def inactive_listing(request, listing_id):
+    # gets the listing info
+    listing = Listing.objects.get(pk=listing_id)
+    try:
+        # checks if there was winner
+        winner_info = Winner.objects.get(listing=listing)
+    except:
+        # saves an empty string if there wasn't
+        winner_info = ""
+    # gets the comments
+    comments = Comment.objects.filter(listing_name=listing)
+    # renders the page for the inactive listing entry
+    return render(request, "auctions/inactive_listing.html", {
+            "listing": listing,
+            "comments": comments,
+            "winner": winner_info,
+        })
+
+# to show all categories
+def categories(request):
+    # get all the categories on the database
+    categories = Categorie.objects.all()
+    return render(request, "auctions/category_view.html", {
+        "categories": categories
+    })
+
+# to show items within a categorie
+def categorie(request, categorie_id):
+    # get the specific categorie clicked
+    category = Categorie.objects.get(pk=categorie_id)
+    # gets all the listings which co-relate with the categorie chosen
+    listings = category.listings.all()
+    return render(request, "auctions/category_listing.html", {
+        "listings": listings,
+        "category": category
+    })

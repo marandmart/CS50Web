@@ -9,12 +9,6 @@
     {% if message %}
         <div class="alert alert-primary">{{ message }}</div>
     {% endif %} 
-    <!-- TODO SHOW USER WHO BOUGHT ITEM THEY WON LISTING -->
-    <!-- {% if not listing.is_active %}
-        {% if userwonclosedbidding %}
-            <div>You bought this item</div>
-        {% endif %}
-    {% endif %} -->
 
     <div id="listing-info">
         <!-- Shows the listing information -->
@@ -26,7 +20,7 @@
                 <p>Created by: You</p>
                 <p>Category: {{ listing.category }}</p>
                 <!-- Give the option to finish the auction -->
-                <a href="#" class="btn btn-light">Finish auction</a>
+                <a href="{% url 'close' listing.id %}" class="btn btn-dark" value="Finish auction">Close auction</a>
             <!-- If the user is not the one who created the page, it just shows the listing info -->
             {% else %}
                 <p>Created by: {{ listing.user }}</p>
