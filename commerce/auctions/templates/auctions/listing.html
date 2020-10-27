@@ -5,6 +5,10 @@
 {% endblock %}
 
 {% block body %}
+    <!-- Checks if there is a message and if there is, it shows it -->
+    {% if message %}
+        <div class="alert alert-primary">{{ message }}</div>
+    {% endif %} 
     <!-- TODO SHOW USER WHO BOUGHT ITEM THEY WON LISTING -->
     <!-- {% if not listing.is_active %}
         {% if userwonclosedbidding %}
@@ -13,51 +17,74 @@
     {% endif %} -->
 
     <div id="listing-info">
+        <!-- Shows the listing information -->
         <div>
+            <!-- Listing image, if there is one -->
             <img src="{{ listing.image_URL }}" alt="Object on display">
-            <p>Created by: {{ listing.user }}</p>
-            <p>Category: {{ listing.category }}</p>
+            <!-- Checks if the logged in user is the one who created -->
+            {% if request.user == listing.user %}
+                <p>Created by: You</p>
+                <p>Category: {{ listing.category }}</p>
+                <!-- Give the option to finish the auction -->
+                <a href="#" class="btn btn-light">Finish auction</a>
+            <!-- If the user is not the one who created the page, it just shows the listing info -->
+            {% else %}
+                <p>Created by: {{ listing.user }}</p>
+                <p>Category: {{ listing.category }}</p>
+            {% endif %}
         </div>
         <div>
             <h2>{{ listing.title }}</h2>
             <p>Description: {{ listing.description }}</p>
-            <p>Current Price: {{ listing.price }}</p>
 
-            {% if user.is_authenticated %}
-                <form action="#" id="bidform">
+            <!-- Checks if there is a bid value -->
+            {% if bid %}
+                <!-- Shows the user and the bid value -->
+                <p>Current Bid: {{ bid.bid }}</p>
+                <p>By user: {{ bid.user }}</p>
+            <!-- Else it just shows the listing's price -->
+            {% else %}
+                <p>Starting Price: {{ listing.price }}</p>
+            {% endif %}
+
+            <!-- If the user is logged in and isn't the one who created the listing, it lets them bid -->
+            {% if user.is_authenticated and request.user != listing.user %}
+                <form action="{% url 'bidding' listing.id %}" method="POST" id="bidform">
+                    {% csrf_token %}
                     <label for="bidarea">Bid: <input type="number" name="bid" id="bidarea" placeholder="Ammount" min="0" step="0.01" required></label>
                     <input type="submit" value="Submit Bid" class="">
                 </form>
+                <!-- Also lets them add the item to their wishlist -->
                 <a href="{% url 'wishlist' listing.id %}" class="btn btn-secondary">{{ wishlist }}</a>
             {% endif %}
-
         </div>
-             <!-- TODO CLOSE LISTING BY THE CREATOR OF THE LISTING -->
-            <!-- {% if user.is_authenticated and user == listing.user %}
-                <a href="#" class="">Close auction</a>
-            {% endif %} -->
-            <!-- check if listing displays always the listing creator or authenticated user -->
+
     </div>
 
+    <!-- Comment section -->
     <div id="comment-section">
         <h2>Comments:</h2>
+        <!-- If there are comments, it loads them -->
         {% for comment in comments %}
         <div class="comment">
             <h3>{{comment.user_name}} said:</h3>
             <p>{{ comment.comment }}</p>
         </div>
+        <!-- If there aren't comments, it says that -->
         {% empty %}
             <h3>No comments yet.</h3>
         {% endfor %}
     </div>
 
+    <!-- Checks if the user is authenticated, and if they are, it lets them comment -->
     {% if user.is_authenticated %}
         <form action="{% url 'commenting' listing.id %}" method="POST" id="comment-form">
             {% csrf_token %}
             {{ commentForm }}
             <input type="submit" value="Submit Comment" class="btn btn-primary">
         </form>
+    <!-- Else it says that they need to be signed in to comment and gives them a link to log in or create an account -->
     {% else %}
-        <div class="alert alert-info" role="alert"><a href="{% url 'login' %}">Sign in</a> to leave a comment!</div>
+        <div class="alert alert-info" role="alert"><a href="{% url 'login' %}">Sign in</a> or <a href="{% url 'register' %}">register</a> to leave a comment!</div>
     {% endif %}
 {% endblock %}

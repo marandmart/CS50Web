@@ -31,17 +31,17 @@ class Wishlist(models.Model):
 		return f"{self.user} wants {self.items.all()}"
 
 class Bid(models.Model):
-	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bider", blank=False, null=False)
-	listing = models.ForeignKey(Listing, related_name="productBids", on_delete=models.CASCADE, default=None)
-	bid = models.DecimalField(max_digits=10, decimal_places=2)
+	listing = models.OneToOneField(Listing, related_name="productBids", on_delete=models.CASCADE, default=None, blank=False)
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bider", blank=True, null=True)
+	bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
 	def __str__(self):
 		return f"{self.user}, {self.listing} bids {self.bid}"
 
 
 class Comment(models.Model):
-	user_name = models.ForeignKey(User, on_delete=models.PROTECT, related_name="commenter", default=None)
 	listing_name = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="onSale", default=None)
+	user_name = models.ForeignKey(User, on_delete=models.PROTECT, related_name="commenter", default=None)
 	comment = models.TextField()
 
 	def __str__(self):
