@@ -351,7 +351,9 @@ def categorie(request, categorie_id):
     # get the specific categorie clicked
     category = Categorie.objects.get(pk=categorie_id)
     # gets all the listings which co-relate with the categorie chosen
-    listings = category.listings.all()
+    items = category.listings.all()
+    # checks if all items are active
+    listings = [item for item in items if item.is_active]
     return render(request, "auctions/category_listing.html", {
         "listings": listings,
         "category": category
