@@ -48,7 +48,7 @@ class CommentForm(forms.Form):
             'class': '',
             'placeholder': 'Write here!',
             'rows': '4',
-            'columns': '50',
+            'columns': '90',
         }))
 
 def index(request):
@@ -68,9 +68,28 @@ def inactive(request):
     # saves all the inactive ones
     inactive_listings = [listing for listing in listings if (not listing.is_active)]
     # renders them as a list
-    return render(request, "auctions/inactive_listings.html", {
+    return render(request, "auctions/all_inactive_listings.html", {
         "inactive_listings": inactive_listings,
     })
+
+def inactive_listing(request, listing_id, message=""):
+    # gets the listing info
+    listing = Listing.objects.get(pk=listing_id)
+    try:
+        # checks if there was winner
+        winner_info = Winner.objects.get(listing=listing)
+    except:
+        # saves an empty string if there wasn't
+        winner_info = ""
+    # gets the comments
+    comments = Comment.objects.filter(listing_name=listing)
+    # renders the page for the inactive listing entry
+    return render(request, "auctions/inactive_listing.html", {
+            "listing": listing,
+            "comments": comments,
+            "winner": winner_info,
+            "message": message,
+        })
 
 def login_view(request):
     if request.method == "POST":
@@ -155,7 +174,7 @@ def create_listing(request):
         "categories": categories,
     })
 
-def listing_entry(request, listing_id):
+def listing_entry(request, listing_id, message=""):
     # listing info
     listing = Listing.objects.get(pk=listing_id)
     # comments
@@ -192,6 +211,7 @@ def listing_entry(request, listing_id):
         "comments": comments,
         "wishlist": in_wishlist,
         "bid": bid,
+        "message": message,
     })
     # loads the page with the info for a non authenticated user
     return render(request, "auctions/listing.html", {
@@ -266,9 +286,9 @@ def bidding(request, listing_id):
             current_bid.save()
         # if it isn't higher than the current bid
         else:
-            message = "<h1>ERROR</h1><p>Bid must be higher than current ammount.</p>"
+            message = "ERROR! Bid must be higher than current ammount."
             # returns an error message giving back an error message
-            return HttpResponse(message)
+            return listing_entry(request, listing_id, message=message)
         # returns the user to the original item's page
         return HttpResponseRedirect(reverse("listing_entry", args=(listing_id,)))
     # if there is no bid on the database
@@ -280,9 +300,9 @@ def bidding(request, listing_id):
             new_bid.save()
         # if it doesn't match the if check criteria
         else:
-            message = "<h1>ERROR</h1><p>Bid must be higher than current ammount.</p>"
+            message = "ERROR! Bid must be higher than current ammount."
             # returns an error message
-            return HttpResponse(message)
+            return listing_entry(request, listing_id, message=message)
         return HttpResponseRedirect(reverse("listing_entry", args=(listing_id,)))
 
 @login_required
@@ -292,7 +312,8 @@ def closeListingWithoutSale(request, listing_id):
     listing.is_active = False
     listing.save()
     # returns the user a message that they have closes the listing without a sale
-    return HttpResponse("<h1>Closed listing without sale</h1>")
+    message = "Closed listing without sale"
+    return inactive_listing(request, listing_id, message)
 
 @login_required
 def close(request, listing_id):
@@ -320,29 +341,11 @@ def close(request, listing_id):
         "winner": inactive_listing_info,
     })
 
-def inactive_listing(request, listing_id):
-    # gets the listing info
-    listing = Listing.objects.get(pk=listing_id)
-    try:
-        # checks if there was winner
-        winner_info = Winner.objects.get(listing=listing)
-    except:
-        # saves an empty string if there wasn't
-        winner_info = ""
-    # gets the comments
-    comments = Comment.objects.filter(listing_name=listing)
-    # renders the page for the inactive listing entry
-    return render(request, "auctions/inactive_listing.html", {
-            "listing": listing,
-            "comments": comments,
-            "winner": winner_info,
-        })
-
 # to show all categories
 def categories(request):
     # get all the categories on the database
     categories = Categorie.objects.all()
-    return render(request, "auctions/category_view.html", {
+    return render(request, "auctions/all_categories.html", {
         "categories": categories
     })
 
@@ -354,7 +357,7 @@ def categorie(request, categorie_id):
     items = category.listings.all()
     # checks if all items are active
     listings = [item for item in items if item.is_active]
-    return render(request, "auctions/category_listing.html", {
+    return render(request, "auctions/category_listings.html", {
         "listings": listings,
         "category": category
     })

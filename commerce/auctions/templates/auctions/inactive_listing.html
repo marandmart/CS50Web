@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block body %}
+    {% if message %}
+    <div class="alert alert-primary">{{ message }}</div>
+    {% endif %} 
     <div id="inactive-listing">
         {% if request.user == winner.user %}
             <div class="alert alert-info">You bought this item</div>
