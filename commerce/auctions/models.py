@@ -48,7 +48,7 @@ class Comment(models.Model):
 		return f"{self.user_name}, on {self.listing_name} says {self.comment}"
 
 class Winner(models.Model):
-	user = models.OneToOneField(User, on_delete=models.PROTECT)
+	user = models.ForeignKey(User, on_delete=models.PROTECT)
 	listing = models.OneToOneField(Listing, on_delete=models.PROTECT)
 	sold_by = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=False)
 

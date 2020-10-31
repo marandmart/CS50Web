@@ -54,12 +54,24 @@ class CommentForm(forms.Form):
 def index(request):
     # gets all listings
     listings = Listing.objects.all()
+    # empty bid list
+    bids =[]
     # creates a list with all active listings
     active_listings = [listing for listing in listings if listing.is_active]
+    # checks which listings have active bids
+    for listing in active_listings:
+        try:
+            bids.append(Bid.objects.get(listing=listing))
+        # if they don't have bids, add an empty string to keep order
+        except Bid.DoesNotExist:
+            bids.append("")
     # reverses it so that the most recent listings will show up on top
     active_listings = active_listings[::-1]
+    bids = bids[::-1]
+    # creates a dictionary with each listing and their corresponding bid
+    listings_bids = {active_listings[i]: bids[i] for i in range(len(active_listings))}
     return render(request, "auctions/index.html", {
-        "listings": active_listings,
+        "listings_bids": listings_bids,
     })
 
 def inactive(request):

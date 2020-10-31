@@ -25,21 +25,14 @@ label{
   margin: auto;
   margin-bottom: 15px;
   box-shadow: 1px -1px 2px black;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 25px;
+  justify-content: center;
+  align-content: center;
 }
-.listing img{
-  position: relative;
-  display: inline-block;
-  left: 10px;
-  top: 10px;
-  width: 25%;
-  max-height: 275px;
-  object-fit: contain;
-}
-.listing-description{
-  display: inline-block;
-  margin-top: 10px;
-  margin-left: 30px;
-  width: 50%;
+.listing-image{
+  margin: auto;
 }
 
 #listing-info{

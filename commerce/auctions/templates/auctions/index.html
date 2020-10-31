@@ -3,13 +3,20 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    {% for listing in listings %}
+    {% for listing, bid in listings_bids.items %}
         <div class="listing">
-            <a href="{% url 'listing_entry' listing.id %}"><img src="{{ listing.image_URL }}" alt="Listing image"></a>
+            <div class="listing-image">
+                <a href="{% url 'listing_entry' listing.id %}"><img src="{{ listing.image_URL }}" alt="Listing image"></a>
+            </div>
             <div class="listing-description">
                 <h2><a href="{% url 'listing_entry' listing.id %}">{{ listing.title }}</a></h2>
                 <p>{{ listing.description }}</p>
-                <div>Current Price: {{ listing.price }}</div>
+                {% if bid %}
+                    <div>Current Bid: {{ bid.bid }}</div>
+                    <div>By: {{ bid.user }}</div>
+                {% else %}
+                    <div>Current Price: {{ listing.price }} {{ k }}</div>
+                {% endif %}
                 <p>Created by: {{ listing.user }}</p>
             </div>
         </div>
