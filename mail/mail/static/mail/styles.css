@@ -1,0 +1,42 @@
+textarea {
+    min-height: 400px;
+}
+
+.email{
+    border: 1px solid black;
+    border-radius: 2px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr 4fr 1fr;
+    justify-content: space-between;
+}
+.email:hover{
+    cursor: pointer;
+}
+.email p{
+    margin-left: 10px;
+}
+
+.email-read{
+    background-color: rgba(0, 0, 0, .2);
+}
+
+#info-field{
+    border: 1px solid black;
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 10px;
+}
+#body-field{
+    margin-top: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 10px;
+    height: 50vh;
+    overflow: auto;
+    width: 100%;
+}
+.btn{
+    margin: 0 10px 10px 0;
+}
