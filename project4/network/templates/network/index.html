@@ -1,0 +1,14 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    {% if user.is_authenticated %}
+    <div id="post-area">
+        <h2>Write Post</h2>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <textarea name="post" id="post" cols="90" rows="5" placeholder="What do you want ton say?"></textarea>
+            <input type="submit" value="Post">
+        </form>
+    </div>
+    {% endif %}
+{% endblock %}

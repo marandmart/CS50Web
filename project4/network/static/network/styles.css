@@ -1,0 +1,22 @@
+body{
+    width: 90%;
+}
+#post-area{
+    display: none;
+    height: 50%;
+    margin: auto;
+    opacity: 0;
+    width: 60%;
+    animation: showPostArea;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes showPostArea {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 100%;
+    }
+} 
