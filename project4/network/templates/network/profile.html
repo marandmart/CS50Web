@@ -1,0 +1,30 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div id="profile-info">
+        <p>{{ user.username }}'s Profile Page</p>
+        {% if user.is_authenticated and request.user != user %}
+            <button id="unfollowBtn">Unfollow</button>
+            <button id="followBtn">Follow</button>
+        {% else %}
+            <div><a href="{% url 'login' }">Login</a> or <a href="{% url 'register' %}">Register</a> to follow this user.</div>
+        {% endif %}
+        <p>Following: {{ follwing | length }}</p>
+        <p>Followers: {{ followers | length }}</p>
+    </div>
+
+    <div id="all-posts">
+        {% for post in posts %}
+            <div class="post">
+                <p>{{ post.user }} said:</p>
+                <p>{{ post.post }}</p>
+                <p>{{ post.time }}</p>
+                <p>Likes: {{ post.likes | length }}</p>
+                <p>Dislikes: {{ post.dislikes | length }}</p>
+            </div>
+        {% empty %}
+            <div>Nothing posted yet.</div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

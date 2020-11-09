@@ -1,7 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('showPost').addEventListener('click', new_post);
+    document.getElementById('showPost').addEventListener('click', newPost);
+    document.getElementById('closePost').addEventListener('click', closePost);8
 })
 
-function new_post() {
+function newPost() {
     document.getElementById('post-area').style.display = 'block';
+    return false;
+}
+function closePost() {
+    document.getElementById('post-area').style.display = 'none';
+    return false;
 }

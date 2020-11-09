@@ -6,16 +6,36 @@ from django.shortcuts import render
 from django.urls import reverse
 from datetime import datetime
 
-from .models import User, Post
+from .models import User, Post, Following, Follower
 
+def all_posts(user=""):
+    if user:
+        posts = Post.objects.filter(user=user)
+    else:
+        posts = Post.objects.all()
+    posts = posts[::-1]
+    return posts
 
 def index(request):
-    return render(request, "network/index.html")
+    posts = all_posts()
+    return render(request, "network/index.html", {
+        "posts": posts
+    })
 
+def profile(request, user_id):
+    user = User.objects.get(pk=user_id)
+    posts = all_posts(user=user)
+    following = Following.objects.get(user=user)
+    followers = Follower.objects.get(user=user)
+    return render(request, "network/profile.html", {
+        "posts": posts,
+        "user": user,
+        "following": following,
+        "followers": followers,
+    })
 
 def login_view(request):
     if request.method == "POST":
-
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
@@ -55,6 +75,10 @@ def register(request):
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
+            followers_list = Follower.objects.create(user=user)
+            following_list = Following.objects.create(user=user)
+            followers_list.save()
+            following_list.save()
         except IntegrityError:
             return render(request, "network/register.html", {
                 "message": "Username already taken."
@@ -72,4 +96,5 @@ def new_post(request):
         time = datetime.now()
         new_post = Post(user=user, post=post, time=time)
         new_post.save()
-        return render(request, "network/index.html")
+    return HttpResponseRedirect(reverse("index"))
+

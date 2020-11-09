@@ -5,7 +5,7 @@ class User(AbstractUser):
     pass
 
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name="user")
     post = models.TextField(max_length=240, null=False, blank=False)
     time = models.DateField(null=False, blank=False)
     likes = models.ManyToManyField(User, related_name="liked", blank=True)
@@ -13,3 +13,17 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.user} posted {self.post}"
+
+class Follower(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False, related_name="user_followed")
+    followers = models.ManyToManyField(User, blank=True, related_name="follows")
+    
+    def __str__(self):
+        return f"{self.user} is followed by {self.followers} people"
+
+class Following(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False, related_name="user_follows")
+    following = models.ManyToManyField(User, blank=True, related_name="followed")
+    
+    def __str__(self):
+        return f"{self.user} follows {self.following} people"
