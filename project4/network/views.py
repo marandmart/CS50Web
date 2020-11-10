@@ -8,23 +8,32 @@ from datetime import datetime
 
 from .models import User, Post, Follow
 
+# function used to retrieve posts
 def all_posts(user=""):
+    # if there's a user parameter passed
     if user:
-        posts = Post.objects.filter(user=user)
+        # retrives all the posts from the user(s)
+        posts = Post.objects.filter(user__in=user)
     else:
+        # if there were no parameters, returns all posts
         posts = Post.objects.all()
+    # puts the posts in reverse chronological order
     posts = posts[::-1]
     return posts
 
 def index(request):
+    # gets all posts
     posts = all_posts()
     return render(request, "network/index.html", {
         "posts": posts
     })
 
 def profile(request, user_id):
+    # gets the user info
     user = User.objects.get(pk=user_id)
+    # gets the user's posts
     posts = all_posts(user=user)
+    # gets the user's follows and followers
     follow = Follow.objects.get(user=user)
     return render(request, "network/profile.html", {
         "posts": posts,
@@ -36,9 +45,7 @@ def following(request):
     # gets all the accounts the user follows
     follows = Follow.objects.get(user=request.user).following.all()
     # gets all the post from those accounts
-    posts = Post.objects.filter(user__in=follows)
-    # puts those posts in most recent order
-    posts = posts[::-1]
+    posts = all_posts(user=follows)
     return render(request, "network/following.html", {
         "posts": posts,
     })
