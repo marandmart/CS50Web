@@ -1,0 +1,19 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+
+<div id="all-posts">
+    {% for post in posts %}
+        <div class="post">
+            <p><a href="{% url 'profile' post.user.id %}">{{ post.user }}</a> said:</p>
+            <p>{{ post.post }}</p>
+            <p>{{ post.time }}</p>
+            <p>Likes: {{ post.likes | length }}</p>
+            <p>Dislikes: {{ post.dislikes | length }}</p>
+        </div>
+    {% empty %}
+        <div>Nothing posted yet or you don't follow anyone.</div>
+    {% endfor %}
+</div>
+
+{% endblock %}

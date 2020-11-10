@@ -14,16 +14,10 @@ class Post(models.Model):
     def __str__(self):
         return f"{self.user} posted {self.post}"
 
-class Follower(models.Model):
+class Follow(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False, related_name="user_followed")
     followers = models.ManyToManyField(User, blank=True, related_name="follows")
-    
-    def __str__(self):
-        return f"{self.user} is followed by {self.followers} people"
-
-class Following(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False, related_name="user_follows")
     following = models.ManyToManyField(User, blank=True, related_name="followed")
     
     def __str__(self):
-        return f"{self.user} follows {self.following} people"
+        return f"{self.user}: followed by {self.followers} and follows {self.following}"

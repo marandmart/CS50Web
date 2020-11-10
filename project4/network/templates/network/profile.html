@@ -4,13 +4,13 @@
     <div id="profile-info">
         <p>{{ user.username }}'s Profile Page</p>
         {% if user.is_authenticated and request.user != user %}
-            <button id="unfollowBtn">Unfollow</button>
-            <button id="followBtn">Follow</button>
-        {% else %}
-            <div><a href="{% url 'login' }">Login</a> or <a href="{% url 'register' %}">Register</a> to follow this user.</div>
+            <button id="unfollowBtn" class="btn btn-danger">Unfollow</button>
+            <button id="followBtn" class="btn btn-primary">Follow</button>
+        {% elif not user.is_authenticated %}
+            <p><a href="{% url 'login' %}">Login</a> or <a href="{% url 'register' %}">Register</a> to follow this user.</p>
         {% endif %}
-        <p>Following: {{ follwing | length }}</p>
-        <p>Followers: {{ followers | length }}</p>
+        <p>Following: {{ follow.following | length }}</p>
+        <p>Followers: {{ follow.followers | length }}</p>
     </div>
 
     <div id="all-posts">

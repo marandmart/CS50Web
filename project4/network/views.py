@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from datetime import datetime
 
-from .models import User, Post, Following, Follower
+from .models import User, Post, Follow
 
 def all_posts(user=""):
     if user:
@@ -25,14 +25,24 @@ def index(request):
 def profile(request, user_id):
     user = User.objects.get(pk=user_id)
     posts = all_posts(user=user)
-    following = Following.objects.get(user=user)
-    followers = Follower.objects.get(user=user)
+    follow = Follow.objects.get(user=user)
     return render(request, "network/profile.html", {
         "posts": posts,
         "user": user,
-        "following": following,
-        "followers": followers,
+        "follow": follow,
     })
+
+def following(request):
+    # gets all the accounts the user follows
+    follows = Follow.objects.get(user=request.user).following.all()
+    # gets all the post from those accounts
+    posts = Post.objects.filter(user__in=follows)
+    # puts those posts in most recent order
+    posts = posts[::-1]
+    return render(request, "network/following.html", {
+        "posts": posts,
+    })
+    
 
 def login_view(request):
     if request.method == "POST":
@@ -75,10 +85,8 @@ def register(request):
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
-            followers_list = Follower.objects.create(user=user)
-            following_list = Following.objects.create(user=user)
-            followers_list.save()
-            following_list.save()
+            follow_list = Follow.objects.create(user=user)
+            follow_list.save()
         except IntegrityError:
             return render(request, "network/register.html", {
                 "message": "Username already taken."
