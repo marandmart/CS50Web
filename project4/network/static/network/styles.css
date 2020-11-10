@@ -9,19 +9,26 @@
     width: 80%;
     margin-bottom: 10px;
     margin-top: 10px;
-    animation: showPostArea;
-    animation-duration: 1s;
+    height: 100%;
+    animation: showPostArea 1s;
     animation-fill-mode: forwards;
 }
-
 @keyframes showPostArea {
     0% {
         opacity: 0;
     }
     100% {
-        opacity: 100%;
+        opacity: 1;
+        animation
     }
 } 
+input[type="submit"]{
+    display: block;
+}
+#post{
+    width: 100%;
+}
+
 .post{
     border: 1px solid black;
     border-radius: 5px;

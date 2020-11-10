@@ -12,8 +12,8 @@ from .models import User, Post, Follow
 def all_posts(user=""):
     # if there's a user parameter passed
     if user:
-        # retrives all the posts from the user(s)
-        posts = Post.objects.filter(user__in=user)
+        # retrives all posts from the user(s)
+        posts = Post.objects.filter(user=user)
     else:
         # if there were no parameters, returns all posts
         posts = Post.objects.all()
@@ -44,8 +44,8 @@ def profile(request, user_id):
 def following(request):
     # gets all the accounts the user follows
     follows = Follow.objects.get(user=request.user).following.all()
-    # gets all the post from those accounts
-    posts = all_posts(user=follows)
+    # gets all the post from those accounts in reverse chronological order
+    posts = Post.objects.filter(user__in=follows)[::-1]
     return render(request, "network/following.html", {
         "posts": posts,
     })
