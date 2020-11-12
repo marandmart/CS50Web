@@ -20,6 +20,9 @@
                 <p>{{ post.time }}</p>
                 <p>Likes: {{ post.likes | length }}</p>
                 <p>Dislikes: {{ post.dislikes | length }}</p>
+                <!-- not functioning -->
+                <button id="likeBtn" class="btn btn-outline-primary">Like</button>
+                <button id="dislikeBtn" class="btn btn-outline-danger">Dislike</button>
             </div>
         {% empty %}
             <div>Nothing posted yet.</div>

@@ -1,19 +1,30 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-
-<div id="all-posts">
-    {% for post in posts %}
-        <div class="post">
-            <p><a href="{% url 'profile' post.user.id %}">{{ post.user }}</a> said:</p>
-            <p>{{ post.post }}</p>
-            <p>{{ post.time }}</p>
-            <p>Likes: {{ post.likes | length }}</p>
-            <p>Dislikes: {{ post.dislikes | length }}</p>
+    {% if user.is_authenticated %}
+        <div id="post-area">
+            <button id="closePost"></button>
+            <h2>Write Post</h2>
+            <form action="{% url 'new_post' %}" method="POST">
+                {% csrf_token %}
+                <textarea name="post" id="post" cols="90" rows="5" placeholder="What do you want to say?"></textarea>
+                <input type="submit" value="Post">
+            </form>
         </div>
-    {% empty %}
-        <div>Nothing posted yet or you don't follow anyone.</div>
-    {% endfor %}
-</div>
+    {% endif %}
+
+    <div id="all-posts">
+        {% for post in posts %}
+            <div class="post">
+                <p><a href="{% url 'profile' post.user.id %}">{{ post.user }}</a> said:</p>
+                <p>{{ post.post }}</p>
+                <p>{{ post.time }}</p>
+                <p>Likes: {{ post.likes | length }}</p>
+                <p>Dislikes: {{ post.dislikes | length }}</p>
+            </div>
+        {% empty %}
+            <div>Nothing posted yet or you don't follow anyone.</div>
+        {% endfor %}
+    </div>
 
 {% endblock %}

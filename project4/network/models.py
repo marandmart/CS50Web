@@ -15,9 +15,16 @@ class Post(models.Model):
         return f"{self.user} posted {self.post}"
 
 class Follow(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False, related_name="user_followed")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False, related_name="follow_status")
     followers = models.ManyToManyField(User, blank=True, related_name="follows")
     following = models.ManyToManyField(User, blank=True, related_name="followed")
     
     def __str__(self):
         return f"{self.user}: followed by {self.followers} and follows {self.following}"
+
+    def serialize(self):
+        return {
+            "user": self.user.username,
+            "followers": [followers for follower in self.followers.all()],
+            "following": [following for following in self.following.all()],
+        }

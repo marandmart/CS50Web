@@ -1,16 +1,31 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
+    {% if user.is_authenticated %}
+    <div id="post-area">
+        <button id="closePost"></button>
+        <h2>Write Post</h2>
+        <form action="{% url 'new_post' %}" method="POST">
+            {% csrf_token %}
+            <textarea name="post" id="post" cols="90" rows="5" placeholder="What do you want to say?"></textarea>
+            <input type="submit" value="Post">
+        </form>
+    </div>
+    {% endif %}
+
     <div id="profile-info">
         <p>{{ user.username }}'s Profile Page</p>
-        {% if user.is_authenticated and request.user != user %}
-            <button id="unfollowBtn" class="btn btn-danger">Unfollow</button>
-            <button id="followBtn" class="btn btn-primary">Follow</button>
+        {% if request.user.is_authenticated and request.user != user %}
+            {% if follow_status %}
+            <button id="followStatusBtn" class="btn btn-danger" data-followStatus="{{ follow_status }}" data-userid="{{ user.id }}">Unfollow</button>
+            {% else %}
+            <button id="followStatusBtn" class="btn btn-primary" data-followStatus="{{ follow_status }}" data-userid="{{ user.id }}">Follow</button>
+            {% endif %}
         {% elif not user.is_authenticated %}
             <p><a href="{% url 'login' %}">Login</a> or <a href="{% url 'register' %}">Register</a> to follow this user.</p>
         {% endif %}
-        <p>Following: {{ follow.following | length }}</p>
-        <p>Followers: {{ follow.followers | length }}</p>
+        <p>Following: {{ follow.following.all | length }}</p>
+        <p>Followers: <span id="followersCount">{{ follow.followers.all | length }}</span></p>
     </div>
 
     <div id="all-posts">
@@ -21,6 +36,9 @@
                 <p>{{ post.time }}</p>
                 <p>Likes: {{ post.likes | length }}</p>
                 <p>Dislikes: {{ post.dislikes | length }}</p>
+                <!-- not functioning -->
+                <button id="likeBtn" class="btn btn-outline-primary">Like</button>
+                <button id="dislikeBtn" class="btn btn-outline-danger">Dislike</button>
             </div>
         {% empty %}
             <div>Nothing posted yet.</div>

@@ -5,8 +5,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from datetime import datetime
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Post, Follow
+
+# PAGINA QUEBRA QUANDO O USUÁRIO NÃO ESTÁ LOGADO
 
 # function used to retrieve posts
 def all_posts(user=""):
@@ -34,11 +39,20 @@ def profile(request, user_id):
     # gets the user's posts
     posts = all_posts(user=user)
     # gets the user's follows and followers
-    follow = Follow.objects.get(user=user)
+    follow_data = Follow.objects.get(user=user)
+    if request.user != user and request.user.is_authenticated:
+        this_user = User.objects.get(user=request.user.id)
+        follows_this_user = user in this_user.follow_status.following.all()
+        return render(request, "network/profile.html", {
+            "posts": posts,
+            "user": user,
+            "follow": follow_data,
+            "follow_status": follows_this_user,
+        })
     return render(request, "network/profile.html", {
         "posts": posts,
         "user": user,
-        "follow": follow,
+        "follow": follow_data,
     })
 
 def following(request):
@@ -113,3 +127,32 @@ def new_post(request):
         new_post.save()
     return HttpResponseRedirect(reverse("index"))
 
+@csrf_exempt
+@login_required
+def follow_unfollow(request, user_id):
+    if request.method == "PUT":
+        # get the id of the user making the request
+        user_following = User.objects.get(pk=request.user.id)
+        # gets the id of the user receiving the follower
+        user_followed = User.objects.get(pk=user_id)
+        # checks if it's a PUT request
+        # load in the data for the request
+        data = json.loads(request.body)
+        # if the current followStatus is false, it means the requesting user is trying to follow this user
+        if data.get("followStatus") == "False":
+            # adds this user to the follow list of the request user
+            user_following.follow_status.following.add(user_followed)
+            # adds the request user to the followers list of the user
+            user_followed.follow_status.followers.add(user_following)
+        # else if the current followStatus is true, it means the requesting user is trying to unfollow this user
+        elif data.get("followStatus") == "True":
+            # removes this user to the follow list of the request user
+            user_following.follow_status.following.remove(user_followed)
+            # removes the request user to the followers list of the user
+            user_followed.follow_status.followers.remove(user_following)
+        # returns a no content response
+        return HttpResponse(status=204)
+    else:
+        return JsonResponse({
+            "error": "PUT request required."
+        }, status=400)
