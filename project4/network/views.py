@@ -8,6 +8,7 @@ from datetime import datetime
 from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
 
 from .models import User, Post, Follow
 
@@ -26,42 +27,66 @@ def all_posts(user=""):
     posts = posts[::-1]
     return posts
 
-def index(request):
+def index(request, page_number=""):
     # gets all posts
-    posts = all_posts()
+    objects = all_posts()
+    # splits the posts into pages
+    posts = Paginator(objects, 10)
+    # if a page_number was passed, retrieves that page number
+    if page_number:
+        page = posts.page(int(page_number))
+    # else returns page 1
+    else:
+        page = posts.page(1)
     return render(request, "network/index.html", {
-        "posts": posts
+        "posts": page
     })
 
-def profile(request, user_id):
-    # gets the user info
+def profile(request, user_id, page_number=""):
+    # gets the user's info
     user = User.objects.get(pk=user_id)
     # gets the user's posts
-    posts = all_posts(user=user)
+    objects = all_posts(user=user)
+    # uses the paginator function to distribute the content
+    posts = Paginator(objects, 10)
+    # if a page_number was passed, retrieves that page number
+    if page_number:
+        page = posts.page(int(page_number))
+    # else returns page 1
+    else:
+        page = posts.page(1)
     # gets the user's follows and followers
     follow_data = Follow.objects.get(user=user)
     if request.user != user and request.user.is_authenticated:
-        this_user = User.objects.get(user=request.user.id)
+        this_user = User.objects.get(pk=request.user.id)
         follows_this_user = user in this_user.follow_status.following.all()
         return render(request, "network/profile.html", {
-            "posts": posts,
+            "posts": page,
             "user": user,
             "follow": follow_data,
             "follow_status": follows_this_user,
         })
     return render(request, "network/profile.html", {
-        "posts": posts,
+        "posts": page,
         "user": user,
         "follow": follow_data,
     })
 
-def following(request):
+def following(request, page_number=""):
     # gets all the accounts the user follows
     follows = Follow.objects.get(user=request.user).following.all()
     # gets all the post from those accounts in reverse chronological order
-    posts = Post.objects.filter(user__in=follows)[::-1]
+    objects = Post.objects.filter(user__in=follows)[::-1]
+    # splits the posts into pages
+    posts = Paginator(objects, 10)
+    # if a page_number was passed, retrieves that page number
+    if page_number:
+        page = posts.page(int(page_number))
+     # else returns page 1
+    else:
+        page = posts.page(1)
     return render(request, "network/following.html", {
-        "posts": posts,
+        "posts": page,
     })
     
 
@@ -130,12 +155,12 @@ def new_post(request):
 @csrf_exempt
 @login_required
 def follow_unfollow(request, user_id):
+    # checks if it's a PUT request
     if request.method == "PUT":
         # get the id of the user making the request
         user_following = User.objects.get(pk=request.user.id)
         # gets the id of the user receiving the follower
         user_followed = User.objects.get(pk=user_id)
-        # checks if it's a PUT request
         # load in the data for the request
         data = json.loads(request.body)
         # if the current followStatus is false, it means the requesting user is trying to follow this user

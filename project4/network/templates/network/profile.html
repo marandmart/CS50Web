@@ -1,7 +1,7 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    {% if user.is_authenticated %}
+    {% if request.user.is_authenticated %}
     <div id="post-area">
         <button id="closePost"></button>
         <h2>Write Post</h2>
@@ -14,14 +14,14 @@
     {% endif %}
 
     <div id="profile-info">
-        <p>{{ user.username }}'s Profile Page</p>
+        <h2>{{ user.username }}'s Profile Page</h2>
         {% if request.user.is_authenticated and request.user != user %}
             {% if follow_status %}
             <button id="followStatusBtn" class="btn btn-danger" data-followStatus="{{ follow_status }}" data-userid="{{ user.id }}">Unfollow</button>
             {% else %}
             <button id="followStatusBtn" class="btn btn-primary" data-followStatus="{{ follow_status }}" data-userid="{{ user.id }}">Follow</button>
             {% endif %}
-        {% elif not user.is_authenticated %}
+        {% elif not request.user.is_authenticated %}
             <p><a href="{% url 'login' %}">Login</a> or <a href="{% url 'register' %}">Register</a> to follow this user.</p>
         {% endif %}
         <p>Following: {{ follow.following.all | length }}</p>
@@ -33,6 +33,7 @@
             <div class="post">
                 <p>{{ post.user }} said:</p>
                 <p>{{ post.post }}</p>
+                <p>{{ posts.has_previous }}</p>
                 <p>{{ post.time }}</p>
                 <p>Likes: {{ post.likes | length }}</p>
                 <p>Dislikes: {{ post.dislikes | length }}</p>
@@ -45,4 +46,30 @@
         {% endfor %}
     </div>
 
+    {% if posts.has_previous or posts.has_next %}
+    <nav id="page-navigation">
+        <ul class="pagination">
+            {% if posts.has_previous %}
+                {% if posts.previous_page_number == 1 %}
+                    <li class="page-item"><a class="page-link" href="{% url 'profile' user.id %}">Previous</a></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="{% url 'profile' user.id posts.previous_page_number %}">Previous</a></li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+            {% endif %}
+            {% if posts.number == 1 %}
+                <li class="page-item disabled"><a class="page-link" href="{% url 'profile' user.id %}">{{ posts.number }}</a></li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="{% url 'profile' user.id posts.number %}">{{ posts.number }}</a></li>
+            {% endif %}
+            {% if posts.has_next %}
+                <li class="page-item"><a class="page-link" href="{% url 'profile' user.id posts.next_page_number %}">{{ posts.next_page_number}}</a></li>
+                <li class="page-item"><a class="page-link" href="{% url 'profile' user.id posts.next_page_number %}">Next</a></li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+            {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
 {% endblock %}

@@ -15,6 +15,9 @@
     <div id="all-posts">
         {% for post in posts %}
             <div class="post">
+                {% if request.user == post.user %}
+                <button id="editBtn" class="btn btn-secondary">Edit Post</button>
+                {% endif %}
                 <p><a href="{% url 'profile' post.user.id %}">{{ post.user }}</a> said:</p>
                 <p>{{ post.post }}</p>
                 <p>{{ post.time }}</p>
@@ -28,4 +31,31 @@
             <div>Nothing posted yet.</div>
         {% endfor %}
     </div>
+
+    {% if posts.has_previous or posts.has_next %}
+    <nav id="page-navigation">
+        <ul class="pagination">
+            {% if posts.has_previous %}
+                {% if posts.previous_page_number == 1 %}
+                <li class="page-item"><a class="page-link" href="{% url 'index' %}">Previous</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="{% url 'index' posts.previous_page_number %}">Previous</a></li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+            {% endif %}
+            {% if posts.number == 1 %}
+                <li class="page-item disabled"><a class="page-link" href="{% url 'index' %}">{{ posts.number }}</a></li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="{% url 'index' posts.number %}">{{ posts.number }}</a></li>
+            {% endif %}
+            {% if posts.has_next %}
+                <li class="page-item"><a class="page-link" href="{% url 'index' posts.next_page_number %}">{{ posts.next_page_number }}</a></li>
+                <li class="page-item"><a class="page-link" href="{% url 'index' posts.next_page_number %}">Next</a></li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 {% endblock %}

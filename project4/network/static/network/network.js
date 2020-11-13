@@ -19,6 +19,7 @@ function newPost() {
 // makes the post-area div go away
 function closePost() {
     document.getElementById('post-area').style.display = 'none';
+    document.getElementById('post').value = '';
     return false;
 }
 function followUnfollow(user_id, followStatus){
