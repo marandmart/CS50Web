@@ -15,12 +15,24 @@
 
     <div id="all-posts">
         {% for post in posts %}
-            <div class="post">
+            <div class="post" data-postid="{{ post.id }}">
                 <p><a href="{% url 'profile' post.user.id %}">{{ post.user }}</a> said:</p>
                 <p>{{ post.post }}</p>
                 <p>{{ post.time }}</p>
-                <p>Likes: {{ post.likes | length }}</p>
-                <p>Dislikes: {{ post.dislikes | length }}</p>
+                <p>Likes: <span class="likeCount">{{ post.likes.all | length }}</span></p>
+                <p>Dislikes: <span class="dislikeCount">{{ post.dislikes.all | length }}</span></p>
+                {% if request.user.is_authenticated %}
+                    {% if request.user in post.likes.all %}
+                        <button type="button" class="likeBtn btn btn-outline-primary active" data-toggle="button" aria-pressed="true">Like</button>
+                    {% else %}
+                        <button type="button" class="likeBtn btn btn-outline-primary" data-toggle="button" aria-pressed="false">Like</button>
+                    {% endif %}
+                    {% if request.user in post.dislikes.all %}
+                        <button type="button" class="dislikeBtn btn btn-outline-danger active" data-toggle="button" aria-pressed="true">Dislike</button>
+                    {% else %}
+                        <button type="button" class="dislikeBtn btn btn-outline-danger" data-toggle="button" aria-pressed="false">Dislike</button>
+                    {% endif %}
+                {% endif %}
             </div>
         {% empty %}
             <div>Nothing posted yet or you don't follow anyone.</div>

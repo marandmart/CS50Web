@@ -181,3 +181,51 @@ def follow_unfollow(request, user_id):
         return JsonResponse({
             "error": "PUT request required."
         }, status=400)
+
+@csrf_exempt
+@login_required
+def edit(request, post_id):
+    if request.method == "PUT":
+        # gets the post using the post id
+        post = Post.objects.get(pk=post_id)
+        # loads in the data from the fetch request
+        data = json.loads(request.body)
+        # saves the loaded content to the post
+        post.post = data.get("edit")
+        # saves the changes
+        post.save()
+        # return a no content response
+        return HttpResponse(status=204)
+    else:
+        return JsonResponse({
+            "error": "PUT request required."
+        })
+
+@csrf_exempt
+@login_required
+def like_dislike(request, post_id):
+    if request.method == "PUT":
+        # gets the user data
+        user = User.objects.get(pk=request.user.id)
+        # gets the post data
+        post = Post.objects.get(pk=post_id)
+        # gets the fetch data
+        data = json.loads(request.body)
+        # saves the like info
+        like = data.get("like")
+        # saves the dislike info
+        dislike = data.get("dislike")
+        # does the proper adding or removal of the user from liking/disliking the post
+        if like == "true":
+            post.likes.add(request.user)
+        elif like == "false":
+            post.likes.remove(request.user)
+        if dislike == "true":
+            post.dislikes.add(request.user)
+        elif dislike == "false":
+            post.dislikes.remove(request.user)
+        return HttpResponse(status=204)
+    else:
+        return JsonResponse({
+            "error": "PUT request required."
+        })
