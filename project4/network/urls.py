@@ -19,4 +19,8 @@ urlpatterns = [
 
     # API
     path("user/follow_unfollow/<int:user_id>", views.follow_unfollow, name="follow_unfollow"),
+    path("edit/<int:post_id>", views.edit, name="edit"),
+    # API URLs for the following, index and profile pages
+    path("user/like_dislike/<int:post_id>", views.like_dislike, name="like_dislike"),
+    path("like_dislike/<int:post_id>", views.like_dislike, name="like_dislike"),
 ]
