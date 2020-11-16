@@ -31,8 +31,11 @@
     <div id="all-posts">
         {% for post in posts %}
             <div class="post">
+                {% if request.user == post.user %}
+                <button class="btn btn-secondary editBtn">Edit Post</button>
+                {% endif %}
                 <p>{{ post.user }} said:</p>
-                <p>{{ post.post }}</p>
+                <p class="post-text">{{ post.post }}</p>
                 <p>{{ posts.has_previous }}</p>
                 <p>{{ post.time }}</p>
                 <p>Likes: {{ post.likes | length }}</p>

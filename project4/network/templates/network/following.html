@@ -16,8 +16,11 @@
     <div id="all-posts">
         {% for post in posts %}
             <div class="post">
+                {% if request.user == post.user %}
+                <button class="btn btn-secondary editBtn">Edit Post</button>
+                {% endif %}
                 <p><a href="{% url 'profile' post.user.id %}">{{ post.user }}</a> said:</p>
-                <p>{{ post.post }}</p>
+                <p class="post-text">{{ post.post }}</p>
                 <p>{{ post.time }}</p>
                 <p>Likes: {{ post.likes | length }}</p>
                 <p>Dislikes: {{ post.dislikes | length }}</p>

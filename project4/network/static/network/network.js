@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!(document.getElementById('followStatusBtn') === null)) {
         // adds action to clicking the button with functions to get the current user_id value and followstatus
         document.getElementById('followStatusBtn').addEventListener('click', () => followUnfollow(getUserId(), getFollowStatus()));
-    } 
+    }
 })
 
 // make the post-area div show up
