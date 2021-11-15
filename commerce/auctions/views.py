@@ -215,7 +215,7 @@ def listing_entry(request, listing_id, message=""):
             in_wishlist = "Remove from wishlist"
         # else it gives the option to add it
         else:
-            in_wishlist = "Add to wishlist"
+            in_wishlist = "Add to Wishlist"
         # renders the page with the proper information for an authenticated user
         return render(request, "auctions/listing.html", {
         "listing": listing,
